@@ -5,6 +5,7 @@
 namespace DataSpec {
 
 struct ITweakSlideShow : ITweak {
+  virtual std::string_view GetPakName() const = 0;
   virtual std::string_view GetFont() const = 0;
   virtual const zeus::CColor& GetFontColor() const = 0;
   virtual const zeus::CColor& GetOutlineColor() const = 0;

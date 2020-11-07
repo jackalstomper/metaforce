@@ -13,6 +13,7 @@ bool AreAllDepsLoaded(const std::vector<TLockedToken<CDependencyGroup>>& deps) {
 } // Anonymous namespace
 
 CSlideShow::CSlideShow() : CIOWin("SlideShow"), x130_(g_tweakSlideShow->GetX54()) {
+  g_ResFactory->GetResLoader()->AddPakFileAsync(g_tweakSlideShow->GetPakName(), false, false);
   const SObjectTag* font = g_ResFactory->GetResourceIdByName(g_tweakSlideShow->GetFont());
   if (font) {
     CGuiTextProperties propsA(false, true, EJustification::Center, EVerticalJustification::Bottom);
@@ -55,6 +56,9 @@ CSlideShow::CSlideShow() : CIOWin("SlideShow"), x130_(g_tweakSlideShow->GetX54()
   }
 }
 
+CSlideShow::~CSlideShow() {
+  //TODO: Remove pak from loader
+}
 bool CSlideShow::LoadTXTRDep(std::string_view name) {
   const SObjectTag* dgrpTag = g_ResFactory->GetResourceIdByName(name);
   if (dgrpTag && dgrpTag->type == FOURCC('DGRP')) {
@@ -74,11 +78,11 @@ CIOWin::EMessageReturn CSlideShow::OnMessage(const CArchitectureMessage& msg, CA
 
     switch (x14_phase) {
     case Phase::Zero: {
-      // if (!g_resLoader->AreAllPaksLoaded())
-      //{
-      //    g_resLoader->AsyncIdlePakLoading();
-      //    return EMessageReturn::Exit;
-      //}
+      if (!g_ResFactory->GetResLoader()->AreAllPaksLoaded())
+      {
+        g_ResFactory->GetResLoader()->AsyncIdlePakLoading();
+          return EMessageReturn::Exit;
+      }
       x14_phase = Phase::One;
       [[fallthrough]];
     }
@@ -138,6 +142,7 @@ void CSlideShow::Draw() {
 }
 
 u32 CSlideShow::SlideShowGalleryFlags() {
+  return 1 | 2 | 4 | 8;
   u32 ret = 0;
   if (!g_GameState)
     return ret;

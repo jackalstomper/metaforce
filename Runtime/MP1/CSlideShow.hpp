@@ -101,6 +101,7 @@ private:
 
 public:
   CSlideShow();
+  ~CSlideShow();
   EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&) override;
   bool GetIsContinueDraw() const override { return false; }
   void Draw() override;

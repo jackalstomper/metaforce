@@ -28,6 +28,7 @@ struct CTweakSlideShow final : ITweakSlideShow {
   CTweakSlideShow() = default;
   CTweakSlideShow(athena::io::IStreamReader& in) { read(in); }
 
+  std::string_view GetPakName() const override { return x4_pakName; }
   std::string_view GetFont() const override { return x14_fontAssetName; }
   const zeus::CColor& GetFontColor() const override { return x24_fontColor; }
   const zeus::CColor& GetOutlineColor() const override { return x28_outlineColor; }
