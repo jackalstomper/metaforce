@@ -92,7 +92,7 @@ if(CMAKE_CROSSCOMPILING)
 endif()
 
 # MSVC has a "latest" flag, which always uses the newest standard
-# when available. GCC and Clang posess no such flag, and must be
+# when available. GCC and Clang possess no such flag, and must be
 # manually enforced. CMake, curiously, also doesn't have a "latest"
 # standard flag either.
 if (NOT MSVC)
