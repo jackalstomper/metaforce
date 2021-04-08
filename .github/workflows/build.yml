@@ -53,7 +53,7 @@ jobs:
       - name: Configure ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
-          key: ubuntu-20.04-${{ matrix.cc }}
+          key: ubuntu-20.04-${{matrix.cc}}
           max-size: 1G
 
       - name: Create build directory
@@ -68,7 +68,16 @@ jobs:
 
       - name: Build
         working-directory: ${{github.workspace}}/build
+        env:
+          CCACHE_LOGFILE: /tmp/ccache.log
         run: cmake --build .
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ccache-log-linux-${{matrix.cc}}
+          path: |
+            /tmp/ccache.log
 
   build-macos:
     name: Build macOS (AppleClang x86_64)
@@ -103,7 +112,16 @@ jobs:
 
       - name: Build
         working-directory: ${{github.workspace}}/build
+        env:
+          CCACHE_LOGFILE: /tmp/ccache.log
         run: cmake --build .
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ccache-log-macos
+          path: |
+            /tmp/ccache.log
 
   build-windows-msvc:
     name: Build Windows (MSVC x86_64)
