@@ -37,7 +37,7 @@ jobs:
           sudo apt-get -y install build-essential curl git cmake ninja-build llvm-dev libclang-dev clang lld \
             zlib1g-dev libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev \
             libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev python3 python-is-python3 qt5-default \
-            libcurl4-openssl-dev
+            libcurl4-openssl-dev ccache
           # free up disk space
           # https://github.com/actions/virtual-environments/issues/2840#issuecomment-790492173
           echo Before
@@ -50,6 +50,12 @@ jobs:
           echo After
           df -h .
 
+      - name: Configure ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: ubuntu-20.04-${{ matrix.cc }}
+          max-size: 1G
+
       - name: Create build directory
         run: cmake -E make_directory ${{github.workspace}}/build
 
@@ -57,7 +63,8 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: |
           cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-            -DCMAKE_C_COMPILER=${{matrix.cc}} -DCMAKE_CXX_COMPILER=${{matrix.cxx}}
+            -DCMAKE_C_COMPILER=${{matrix.cc}} -DCMAKE_CXX_COMPILER=${{matrix.cxx}} \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
       - name: Build
         working-directory: ${{github.workspace}}/build
@@ -74,9 +81,15 @@ jobs:
 
       - name: Install dependencies
         run: |
-          brew install ninja qt@5 graphicsmagick imagemagick
+          brew install ninja qt@5 graphicsmagick imagemagick ccache
           brew link qt@5
           yarn global add create-dmg
+
+      - name: Configure ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: macos-10.15-appleclang
+          max-size: 1G
 
       - name: Create build directory
         run: cmake -E make_directory ${{github.workspace}}/build
@@ -85,7 +98,8 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: |
           export PATH="/usr/local/opt/qt@5/bin:$PATH" # FIXME remove
-          cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          cmake $GITHUB_WORKSPACE -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
       - name: Build
         working-directory: ${{github.workspace}}/build
@@ -93,6 +107,7 @@ jobs:
 
   build-windows-msvc:
     name: Build Windows (MSVC x86_64)
+    if: 'false' # disabled due to memory constraints
     runs-on: windows-2019
     env:
       LLVM_VERSION: 10.0.1
@@ -145,6 +160,7 @@ jobs:
 
   build-windows-clang:
     name: Build Windows (Clang x86_64)
+    if: 'false' # disabled temporarily
     runs-on: windows-2019
     env:
       LLVM_VERSION: 10.0.1
